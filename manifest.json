@@ -1,0 +1,44 @@
+{
+	"manifest_version": 2,
+	"name": "utility-button",
+	"version": "0.0.1",
+  
+	"description": "A generic utility button which can send a GET or POST to a URL of your choice. The post can contain, optionally, the current tab's URL and/or the current tabs contents. Optional bearer token can be sent in header.",
+  
+	"icons": {
+		"48": "icons/green-button-48.png",
+		"96": "icons/green-button-96.png"
+	},
+	
+	"content_scripts": [{
+		"matches": ["<all_urls>"],
+		"js": [
+			"notifypopup.js",
+			"main.js"
+		],
+		"css": ["main.css"]
+	}],
+	"options_ui": {
+		"page": "options.html"
+	},
+	"permissions": ["storage", "activeTab"],
+	"background": {
+		"scripts": ["background.js"]
+	},
+	"browser_specific_settings": {
+		"gecko": {
+			"id": "utility-button@technicalbloke.com",
+			"update_url": "https://technicalbloke.com/utility-button/updates.json"
+		}
+	},
+	"web_accessible_resources": [
+		"icons/green-button.svg"
+	],
+	"browser_action": {
+		"default_icon": {
+			"48": "icons/green-button-48.png",
+			"96": "icons/green-button-96.png"
+		},
+		"default_title": "Utility Button"
+	}
+}

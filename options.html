@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<!-- <meta name="viewport" content="width=device-width, initial-scale=1.0"> -->
+	<title>Nexty settings</title>
+	<style>
+		.err { color: red; }
+		.ok { color: green; }
+	</style>
+</head>
+<body>
+    <form>
+		<table>
+
+			<tr>
+				<td><label for="server">Server</label></td>
+				<td><input type="text" id="server"></td>
+			</tr>
+
+			<tr>
+				<td><label for="token">Auth Token (optional)</label></td>
+				<td><input type="text" id="token"></td>
+			</tr>
+
+			<tr>
+				<td><label>Send page URL?</label></td>
+				<td><input type="checkbox" id="sendUrl"></td>
+			</tr>
+
+			<tr>
+				<td><label>Send page contents?</label></td>
+				<td><input type="checkbox" id="sendContents"></td>
+			</tr>
+
+		</table>
+		<button type="submit">Save</button>
+	</form>
+	<div class="err" id="err"></div>
+	<div class="ok" id="ok"></div>
+	<script src="options.js"></script>
+</body>
+</html>

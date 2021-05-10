@@ -1,0 +1,35 @@
+#notifyPopup{
+	margin: 0.5em;
+	border: 0.25em solid transparent;
+	border-radius: 0.5em;
+	font-size: 1.5rem;
+	position: fixed;
+	right: 0px;
+	top: 0px;
+	background: gainsboro;
+	padding: 0.25em;
+	z-index: 99999;
+}
+
+.notifyPopupOneSecondFade{
+	opacity: 0;
+	transition: opacity 2s;
+}
+
+#notifyPopupContainer{
+	text-align: center;
+}
+
+#notifyPopupMessage{
+	padding-bottom: 1em;
+}
+#notifyPopup button {
+	font-size: 1rem;
+}
+.green{
+	color: green;
+}
+
+.red{
+	color: red;
+}
