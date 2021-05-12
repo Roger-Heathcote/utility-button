@@ -1,4 +1,4 @@
-const store = browser.storage.local || chrome.storage.local
+const store = browser.storage.local
 let frontend;
 
 async function onCreated() {
@@ -12,32 +12,26 @@ function connected(port){
 browser.runtime.onConnect.addListener(connected);
 
 function notify(tabId, text, fadeOut=true){
-	console.log("Notifying:", tabId)
 	if(frontend) {
 		frontend.postMessage(JSON.stringify({
 			msg: "notification",
 			payload: {fadeOut,	text}
 		}))
 	} else {
-		console.log("frontend ain't defined", frontend)
+		console.log(`No content script we can to talk to on this tab :/`)
 	}
 }
 
 browser.browserAction.onClicked.addListener(event=>{
-	console.log("WELL BROWSER ACTION CLICK WAS RECV IN BACKGROUND")
 	const tabId = event.index
-	console.log("Marshalling:", tabId)
 	if(frontend) {
 		frontend.postMessage(JSON.stringify({msg: "marshal"}))
 	} else {
-		console.log("frontend ain't defined", frontend)
+		console.log(`No content script we can to talk to on this tab :/`)
 	}
 })
 
-
 async function messageHandler(encodedMsg, sender) {
-
-	// console.log("In backend message handler")
 
 	const {msg, payload} = JSON.parse(encodedMsg)
 
@@ -48,31 +42,29 @@ async function messageHandler(encodedMsg, sender) {
 		const tabId = sender.sender.tab.id
 
 		if(!settings.server) {
-			msg = "No server specified. Please visit about:addons and set one."
-			notify(tabId, msg, false)
-			return console.log("msg")
+			err = "No server specified. Please visit about:addons and set one."
+			notify(tabId, err, false)
+			return console.log(err)
 		}
 	
 		const post = (sendUrl || sendContents) == true
-		const params = token ? {"Authorization": `Bearer ${token}`} : {}
+		const params = token ? { headers: {"Authorization": `Bearer ${token}`} } : {}
 
-		if(!post) { // Do a POST request
+		if(post) { // Do a POST request
 
-			params.headers = { "content-type": "application/json" }
+			if(!params.headers) params.headers = {}
+			params.headers["content-type"] = "application/json"
 			params.method = "POST"
 		
 			// If only sendUrl is selected just send that raw, not in an object
-			if(sendUrl && !sendContents){
-				params.body = payload.url
-			}
+			if(sendUrl && !sendContents) params.body = payload.url
 			
 			// If only sendContents is selected just send that raw, not in an object
-			else if(!sendUrl && sendContents){
-				params.body = payload.contents
-			}
+			else if(!sendUrl && sendContents) params.body = payload.contents
 
 			// Both must be selected, send both in an object, assuming a payload value is available
 			else {
+				const paramObj = {}
 				if(sendUrl && payload.url) paramObj.url = payload.url
 				if(sendContents && payload.contents) paramObj.contents = payload.contents
 				params.body = JSON.stringify(paramObj)
@@ -80,16 +72,18 @@ async function messageHandler(encodedMsg, sender) {
 		}
 
 		fetch(server, params)
-			.then(result => {
-				console.log("GOT REPLY")
+			.then(response => {
+				if (response.status !== 200){
+					throw new Error(`Error Code ${response.status}`)
+				}
+			})
+			.then(payload => {
 				notify(tabId, "OK <span class='green'>&check;</span>")
 			})
 			.catch(err => {
 				console.log("FETCH ERROR", err.message)
-				notify(tabId, `Not OK <span class='red'>&cross;</span>`, false)
+				notify(tabId, `Not OK <span class='red'>&cross;</span><br>${err.message}`, false)
 			})
-
-		console.log("Fetch request started")
 
 	}
 }
