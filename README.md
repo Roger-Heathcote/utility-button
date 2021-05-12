@@ -2,6 +2,8 @@
 
 A generic utility button which can send a GET or POST to a URL of your choice.
 
+Firefox only right now. Subsequent versions will move to Manifest v3 and support Chromium based browsers.
+
 The request can optionally contain
 - The current tab's URL
 - The current tabs contents

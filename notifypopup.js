@@ -1,5 +1,4 @@
 function createNotification(text, fadeOut=true) {
-	console.log("Creating notify popup")
 	const popup = document.createElement("div")
 	popup.setAttribute("id", "notifyPopup")
 	document.body.append(popup)
@@ -21,13 +20,10 @@ function createNotification(text, fadeOut=true) {
 
 function doFadeOut() {
 	const popup = document.getElementById("notifyPopup")
-	if(popup) popup.classList.add("notifyPopupOneSecondFade")
-	console.log("Fade set")
+	if(popup) popup.classList.add("notifyPopupTwoSecondFade")
 }
 
 function destroyNotifyPopup() {
-	console.log("Destroying notification")
 	const popup = document.getElementById("notifyPopup")
 	if(popup) popup.parentNode.removeChild(popup)
-	console.log("Notification destroyed")
 }
