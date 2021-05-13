@@ -1,19 +1,19 @@
 const store = browser.storage.local
-let frontend;
+let frontends = {};
 
 async function onCreated() {
 	console.log("Utility Button is active.")
 }
 
 function connected(port){
-	frontend = port
-	frontend.onMessage.addListener(messageHandler)
+	frontends[port.sender.tab.id] = port
+	port.onMessage.addListener(messageHandler)
 }
 browser.runtime.onConnect.addListener(connected);
 
 function notify(tabId, text, fadeOut=true){
-	if(frontend) {
-		frontend.postMessage(JSON.stringify({
+	if(tabId in frontends) {
+		frontends[tabId].postMessage(JSON.stringify({
 			msg: "notification",
 			payload: {fadeOut,	text}
 		}))
@@ -22,10 +22,10 @@ function notify(tabId, text, fadeOut=true){
 	}
 }
 
-browser.browserAction.onClicked.addListener(event=>{
-	const tabId = event.index
-	if(frontend) {
-		frontend.postMessage(JSON.stringify({msg: "marshal"}))
+browser.browserAction.onClicked.addListener(tab=>{
+	const tabId = tab.id
+	if(tabId in frontends) {
+		frontends[tabId].postMessage(JSON.stringify({msg: "marshal"}))
 	} else {
 		console.log(`No content script we can to talk to on this tab :/`)
 	}
