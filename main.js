@@ -1,5 +1,5 @@
 const store = browser.storage.local
-let backend = browser.runtime.connect({name:"portyMcPortface"})
+let backend = browser.runtime.connect({name:window.location.href})
 backend.onMessage.addListener(async function(message) {
 	
 	const {msg, payload} = JSON.parse(message)
