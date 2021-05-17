@@ -1,76 +1,73 @@
+const browser = chrome || browser
 const store = browser.storage.local
-let frontends = {};
-
-async function onCreated() {
-	console.log("Utility Button is active.")
-}
-
-function connected(port){
-	frontends[port.sender.tab.id] = port
-	port.onMessage.addListener(messageHandler)
-}
-browser.runtime.onConnect.addListener(connected);
 
 function notify(tabId, text, fadeOut=true){
-	if(tabId in frontends) {
-		frontends[tabId].postMessage(JSON.stringify({
-			msg: "notification",
-			payload: {fadeOut,	text}
-		}))
-	} else {
-		console.log(`No content script we can to talk to on this tab :/`)
+	responseHandler = response => {
+		if(browser.runtime.lastError) { console.log(
+			"error displaying notification:", 
+			browser.runtime.lastError?.message || "No error message :/"
+		)}
 	}
+	messagePayload = JSON.stringify({
+		msg: "notification",
+		payload: {fadeOut,	text}
+	})
+	browser.tabs.sendMessage(tabId, messagePayload, responseHandler)
 }
 
-browser.browserAction.onClicked.addListener(tab=>{
-	const tabId = tab.id
-	if(tabId in frontends) {
-		frontends[tabId].postMessage(JSON.stringify({msg: "marshal"}))
-	} else {
-		console.log(`No content script we can to talk to on this tab :/`)
-	}
+browser.action.onClicked.addListener(tab=>{
+	store.get(["sendUrl", "sendContents"], payload=>{
+		responseHandler = response => {
+			if(browser.runtime.lastError) {
+				notify(tab.id, browser.runtime.lastError?.message || "No error message :/")
+			} else {
+				messageHandler(response, tab.id)
+			}
+		}
+		messagePayload = JSON.stringify({
+			msg: "marshal",
+			payload
+		})
+		browser.tabs.sendMessage(tab.id, messagePayload, responseHandler)
+	})
 })
 
-async function messageHandler(encodedMsg, sender) {
-
+async function messageHandler(encodedMsg, tabId) {
+	
 	const {msg, payload} = JSON.parse(encodedMsg)
+	if(msg !== "OK") return console.log("Not a valid command:", msg)
 
-	if(msg==="send"){
-
-		const settings = await store.get()
-		const {server, token, sendUrl, sendContents} = settings
-		const tabId = sender.sender.tab.id
-
+	store.get(null, settings => {
+		
+		const {server, token, sendUrl, sendContents} = settings	
 		if(!settings.server) {
 			err = "No server specified. Please visit about:addons and set one."
 			notify(tabId, err, false)
 			return console.log(err)
 		}
-	
-		const post = (sendUrl || sendContents) == true
 		const params = token ? { headers: {"Authorization": `Bearer ${token}`} } : {}
 
-		if(post) { // Do a POST request
-
+		const post = (sendUrl || sendContents) == true
+		if(post) {
 			if(!params.headers) params.headers = {}
-			params.headers["content-type"] = "application/json"
 			params.method = "POST"
+			params.headers["content-type"] = "application/json"
 		
 			// If only sendUrl is selected just send that raw, not in an object
 			if(sendUrl && !sendContents) params.body = payload.url
 			
 			// If only sendContents is selected just send that raw, not in an object
 			else if(!sendUrl && sendContents) params.body = payload.contents
-
+	
 			// Both must be selected, send both in an object, assuming a payload value is available
 			else {
-				const paramObj = {}
-				if(sendUrl && payload.url) paramObj.url = payload.url
-				if(sendContents && payload.contents) paramObj.contents = payload.contents
-				params.body = JSON.stringify(paramObj)
+				const postBody = {}
+				if(sendUrl && payload.url) postBody.url = payload.url
+				if(sendContents && payload.contents) postBody.contents = payload.contents
+				params.body = JSON.stringify(postBody)
 			}
 		}
-
+	
 		fetch(server, params)
 			.then(response => {
 				if (response.status !== 200){
@@ -83,7 +80,6 @@ async function messageHandler(encodedMsg, sender) {
 			.catch(err => {
 				console.log("FETCH ERROR", err.message)
 				notify(tabId, `Not OK <span class='red'>&cross;</span><br>${err.message}`, false)
-			})
-
-	}
+			})	
+	})
 }

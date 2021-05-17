@@ -1,3 +1,5 @@
+console.log("notifypopup.js")
+
 function createNotification(text, fadeOut=true) {
 	const popup = document.createElement("div")
 	popup.setAttribute("id", "notifyPopup")

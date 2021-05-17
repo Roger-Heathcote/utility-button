@@ -1,17 +1,19 @@
+const browser = chrome || browser
 const store = browser.storage.local
-let backend = browser.runtime.connect({name:window.location.href})
-backend.onMessage.addListener(async function(message) {
+browser.runtime.onMessage.addListener(msgHandler)
+	
+async function msgHandler(message, sender, sendResponse){
 	
 	const {msg, payload} = JSON.parse(message)
 
 	if(msg === "notification") {
 		createNotification(payload.text, payload.fadeOut)
+		return
 	}
 
 	if(msg === "marshal") {
 		const response = {}
-		const settings = await store.get()
-		const {sendUrl, sendContents} = settings
+		const {sendUrl, sendContents} = payload
 		if(sendUrl) response.url = window.location.href	
 		if(sendContents) {
 			const body =
@@ -20,13 +22,18 @@ backend.onMessage.addListener(async function(message) {
 			'</head>' +
 			'<body>' +
 			document.body.innerHTML +
-			'</body>';
+			'</body>'
 			response.contents = body
 		}
-		backend.postMessage(JSON.stringify({
-			msg: "send",
+		sendResponse(JSON.stringify({
+			msg: "OK",
 			payload: response,
-		}));
+		}))
+		return
 	}
 
-});
+	sendResponse(JSON.stringify({
+		msg: `No instruction by the name ${msg}`
+	}))
+
+}

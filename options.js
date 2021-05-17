@@ -1,3 +1,5 @@
+console.log("options.js")
+const browser = chrome || browser
 const store = browser.storage.local
 
 /* Basic firefox plugin options/prefs page page for us to enter server, pwd etc */
@@ -14,37 +16,32 @@ function saveOptions(e) {
 		sendUrl: document.querySelector("#sendUrl").checked,
 		sendContents: document.querySelector("#sendContents").checked
 	}
-	store.set(settings)
-		.then(() => {
-			console.log("Settings saved")
-			document.querySelector("#ok").textContent = `Settings saved.`
-
-		})
-		.catch(error =>{
+	store.set(settings, val => {
+		if(browser.runtime.lastError) {
+			const error = browser.runtime.lastError?.message || "No error message :/"
 			document.querySelector("#err").textContent = `storage.local.set failed: ${error}`
 			console.log("Problem saving settings:", error)
-		})
-
+		} else {
+			console.log("Settings saved")
+			document.querySelector("#ok").textContent = `Settings saved.`
+		}
+	})
 }
 
 async function loadOptions() {
-
-	try {
-		const settings = await store.get()
-		const {
-			server,
-			token,
-			sendUrl,
-			sendContents,
-		} = settings
-		document.querySelector("#server").value = server || ""
-		document.querySelector("#token").value = token || ""
-		document.querySelector("#sendUrl").checked = sendUrl == true
-		document.querySelector("#sendContents").checked = sendContents == true
-	} catch (error) {
-		console.log(`Store get failed: ${error}`)
-		document.querySelector("#err").textContent = `storage.local.get failed: ${error}`
-	}
+	store.get(null , settings => {
+		if(browser.runtime.lastError){
+			const error = browser.runtime.lastError?.message || "No error message :/"
+			console.log(`Store get failed: ${error}`)
+			document.querySelector("#err").textContent = `storage.local.get failed: ${error}`
+		} else {
+			const {server, token, sendUrl, sendContents} = settings
+			document.querySelector("#server").value = server || ""
+			document.querySelector("#token").value = token || ""
+			document.querySelector("#sendUrl").checked = sendUrl == true
+			document.querySelector("#sendContents").checked = sendContents == true
+		}
+	})
 }
 
 document.addEventListener("DOMContentLoaded", loadOptions)
