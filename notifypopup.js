@@ -1,16 +1,44 @@
-function createNotification(text, fadeOut=true) {
+function createNotification(type, text, fadeOut=true) {
 	const popup = document.createElement("div")
 	popup.setAttribute("id", "notifyPopup")
 	document.body.append(popup)
-	popup.innerHTML = `
-	<div id="notifyPopupContainer">
-		<div id="notifyPopupMessage">
-			${text}
-		</div>
-		<button type="button" id="notifyPopupDismissButton">Dismiss</button>
-	</div>
-	`
-	const dismissButton = document.getElementById("notifyPopupDismissButton")
+	
+	const container = document.createElement("div")
+	container.setAttribute("id", "notifyPopupContainer")
+	popup.append(container)
+
+	const message = document.createElement("div")
+	message.setAttribute("id", "notifyPopupMessage")
+	container.append(message)
+
+	const msgText = document.createElement("span")
+	msgText.textContent = (Array.isArray(text)) ? text.shift() : text
+	message.append(msgText)
+	
+	const msgType = document.createElement("span")
+	if(type==="good"){
+		msgType.setAttribute("class", "green")
+		msgType.textContent = " ✓"
+	} else if (type==="bad") {
+		msgType.setAttribute("class", "red")
+		msgType.textContent = " ✗"
+	}
+	message.append(msgType)
+
+	let el
+	while(Array.isArray(text) && text.length){
+		message.append(document.createElement("br"))
+		el = document.createElement("span")
+		el.textContent = text.shift()
+		message.append(el)
+	}
+	
+	message.append(document.createElement("br"))
+
+	const dismissButton = document.createElement("button")
+	dismissButton.textContent = "Dismiss"
+	message.append(dismissButton)
+
 	dismissButton.addEventListener("click", destroyNotifyPopup)
 	if(fadeOut){
 		setTimeout(doFadeOut, 2000)

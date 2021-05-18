@@ -11,11 +11,11 @@ function connected(port){
 }
 browser.runtime.onConnect.addListener(connected);
 
-function notify(tabId, text, fadeOut=true){
+function notify(tabId, type, text, fadeOut=true){
 	if(tabId in frontends) {
 		frontends[tabId].postMessage(JSON.stringify({
 			msg: "notification",
-			payload: {fadeOut,	text}
+			payload: {type, fadeOut, text}
 		}))
 	} else {
 		console.log(`No content script we can to talk to on this tab :/`)
@@ -43,7 +43,7 @@ async function messageHandler(encodedMsg, sender) {
 
 		if(!settings.server) {
 			err = "No server specified. Please visit about:addons and set one."
-			notify(tabId, err, false)
+			notify(tabId, "bad", err, false)
 			return console.log(err)
 		}
 	
@@ -78,11 +78,11 @@ async function messageHandler(encodedMsg, sender) {
 				}
 			})
 			.then(payload => {
-				notify(tabId, "OK <span class='green'>&check;</span>")
+				notify(tabId, "good","OK")
 			})
 			.catch(err => {
 				console.log("FETCH ERROR", err.message)
-				notify(tabId, `Not OK <span class='red'>&cross;</span><br>${err.message}`, false)
+				notify(tabId, "bad", ["Not OK", err.message], false)
 			})
 
 	}
