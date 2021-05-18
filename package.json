@@ -1,6 +1,6 @@
 {
 	"name": "utility-button",
-	"version": "0.0.1",
+	"version": "0.0.3",
 	"description": "A generic utility button which can send a GET or POST to a URL of your choice containing, optionally, the current tab's URL and/or the current tabs contents. An optional auth header may be included.",
 	"main": "main.js",
 	"scripts": {
