@@ -2,7 +2,7 @@
 
 A generic utility button which can send a GET or POST to a URL of your choice.
 
-This is a stable Manifest 2 branch for use in Firefox. No feature development is to happen on this branch, only bug fixing.
+Change of plan! Development will happen on Manifest 2 branch and merge into main for release.
 
 The request can optionally contain
 - The current tab's URL

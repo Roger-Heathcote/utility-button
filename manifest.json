@@ -1,7 +1,7 @@
 {
 	"manifest_version": 2,
 	"name": "utility-button",
-	"version": "0.0.1",
+	"version": "0.0.2",
   
 	"description": "A generic utility button which can send a GET or POST to a URL of your choice. The post can contain, optionally, the current tab's URL and/or the current tabs contents. Optional bearer token can be sent in header.",
   

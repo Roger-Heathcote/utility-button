@@ -16,13 +16,14 @@
 	transition: opacity 2s;
 }
 
-#notifyPopupContainer{
+#notifyPopupMessage{
 	text-align: center;
 }
 
-#notifyPopupMessage{
-	padding-bottom: 1em;
+#notifyPopupMessage > *+* {
+	margin-bottom: 0.5em;
 }
+
 #notifyPopup button {
 	font-size: 1rem;
 }
