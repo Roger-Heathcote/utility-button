@@ -5,7 +5,7 @@ backend.onMessage.addListener(async function(message) {
 	const {msg, payload} = JSON.parse(message)
 
 	if(msg === "notification") {
-		createNotification(payload.text, payload.fadeOut)
+		createNotification(payload.type, payload.text, payload.fadeOut)
 	}
 
 	if(msg === "marshal") {
